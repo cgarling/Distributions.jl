@@ -12,8 +12,10 @@ isnan_type(::Type{T}, v) where {T} = isnan(v) && v isa T
     @test convert(LogBNormal{Float32}, d) isa LogBNormal{Float32}
 
     @test logpdf(LogBNormal(0, 0, ℯ), 1) === Inf
+    @test logpdf(LogBNormal(0, 0, 10), 1) === Inf
     @test logpdf(LogBNormal(), Inf) === -Inf
     @test iszero(logcdf(LogBNormal(0, 0, ℯ), 1))
+    @test iszero(logcdf(LogBNormal(0, 0, 10), 1))
     @test iszero(logcdf(LogBNormal(), Inf))
     @test logdiffcdf(LogBNormal(), Float32(exp(3)), Float32(exp(3))) === -Inf
     @test logdiffcdf(LogBNormal(), Float32(exp(5)), Float32(exp(3))) ≈ -6.607938594596893 rtol=1e-8
@@ -28,37 +30,62 @@ isnan_type(::Type{T}, v) where {T} = isnan(v) && v isa T
     end
 
     @test logccdf(LogBNormal(0, 0, ℯ), 1) === -Inf
+    @test logccdf(LogBNormal(0, 0, 10), 1) === -Inf
     @test iszero(logccdf(LogBNormal(eps(), 0, ℯ), 1))
+    @test iszero(logccdf(LogBNormal(eps(), 0, 10), 1))
 
     @test iszero(quantile(LogBNormal(), 0))
+    @test iszero(quantile(LogBNormal(0,1,10), 0))
     @test isone(quantile(LogBNormal(), 0.5))
+    @test isone(quantile(LogBNormal(0,1,10), 0.5))
     @test quantile(LogBNormal(), 1) === Inf
+    @test quantile(LogBNormal(0,1,10), 1) === Inf
 
     @test iszero(quantile(LogBNormal(0, 0, ℯ), 0))
+    @test iszero(quantile(LogBNormal(0, 0, 10), 0))
     @test isone(quantile(LogBNormal(0, 0, ℯ), 0.75))
+    @test isone(quantile(LogBNormal(0, 0, 10), 0.75))
     @test quantile(LogBNormal(0, 0, ℯ), 1) === Inf
+    @test quantile(LogBNormal(0, 0, 10), 1) === Inf
 
     @test iszero(quantile(LogBNormal(0.25, 0, ℯ), 0))
+    @test iszero(quantile(LogBNormal(0.25, 0, 10), 0))
     @test quantile(LogBNormal(0.25, 0, ℯ), 0.95) == exp(0.25)
+    @test quantile(LogBNormal(0.25, 0, 10), 0.95) == exp10(0.25)
+    @test quantile(LogBNormal(0.25, 0, 3), 0.95) == 3^(0.25)
     @test quantile(LogBNormal(0.25, 0, ℯ), 1) === Inf
+    @test quantile(LogBNormal(0.25, 0, 10), 1) === Inf
 
     @test cquantile(LogBNormal(), 0) === Inf
+    @test cquantile(LogBNormal(0,1,10), 0) === Inf
     @test isone(cquantile(LogBNormal(), 0.5))
+    @test isone(cquantile(LogBNormal(0,1,10), 0.5))
     @test iszero(cquantile(LogBNormal(), 1))
+    @test iszero(cquantile(LogBNormal(0,1,10), 1))
 
     @test cquantile(LogBNormal(0, 0, ℯ), 0) === Inf
+    @test cquantile(LogBNormal(0, 0, 10), 0) === Inf
     @test isone(cquantile(LogBNormal(0, 0, ℯ), 0.75))
+    @test isone(cquantile(LogBNormal(0, 0, 10), 0.75))
     @test iszero(cquantile(LogBNormal(0, 0, ℯ), 1))
+    @test iszero(cquantile(LogBNormal(0, 0, 10), 1))
 
     @test cquantile(LogBNormal(0.25, 0, ℯ), 0) === Inf
+    @test cquantile(LogBNormal(0.25, 0, 10), 0) === Inf
     @test cquantile(LogBNormal(0.25, 0, ℯ), 0.95) == exp(0.25)
+    @test cquantile(LogBNormal(0.25, 0, 10), 0.95) == exp10(0.25)
     @test iszero(cquantile(LogBNormal(0.25, 0, ℯ), 1))
+    @test iszero(cquantile(LogBNormal(0.25, 0, 10), 1))
 
     @test iszero(invlogcdf(LogBNormal(), -Inf))
+    @test iszero(invlogcdf(LogBNormal(0,1,10), -Inf))
     @test isnan_type(Float64, invlogcdf(LogBNormal(), NaN))
+    @test isnan_type(Float64, invlogcdf(LogBNormal(0,1,10), NaN))
 
     @test invlogccdf(LogBNormal(), -Inf) === Inf
+    @test invlogccdf(LogBNormal(0,1,10), -Inf) === Inf
     @test isnan_type(Float64, invlogccdf(LogBNormal(), NaN))
+    @test isnan_type(Float64, invlogccdf(LogBNormal(0,1,10), NaN))
 
     # test for #996 being fixed
     let d = LogBNormal(0, 1, ℯ), x = exp(1), ∂x = exp(2)
@@ -76,6 +103,7 @@ end
 
     @test @inferred(pdf(LogBNormal(0.0, 0.0), 1.0f0)) === Inf
     @test @inferred(pdf(LogBNormal(0.0f0, 0.0f0), 1.0)) === Inf
+    @test @inferred(pdf(LogBNormal(0.0f0, 0.0f0, 10.0f0), 1.0)) === Inf
     @test @inferred(pdf(LogBNormal(0.0f0, 0.0f0), 1.0f0)) === Inf32
 
     @test isnan_type(Float64, @inferred(pdf(LogBNormal(0.0, 0.0), NaN)))
@@ -264,23 +292,29 @@ end
     @test @inferred(quantile(LogBNormal(1.0, 0.0), 0.0f0)) === 0.0
     @test @inferred(quantile(LogBNormal(1.0, 0.0f0), 1.0)) === Inf
     @test @inferred(quantile(LogBNormal(1.0f0, 0.0), 0.5)) ===  exp(1)
+    @test @inferred(quantile(LogBNormal(1.0f0, 0.0, 10.0), 0.5)) ===  exp10(1)
     @test isnan_type(Float64, @inferred(quantile(LogBNormal(1.0f0, 0.0), NaN)))
     @test @inferred(quantile(LogBNormal(1.0f0, 0.0f0), 0.0f0)) === 0.0f0
     @test @inferred(quantile(LogBNormal(1.0f0, 0.0f0), 1.0f0)) === Inf32
     @test @inferred(quantile(LogBNormal(1.0f0, 0.0f0), 0.5f0)) === exp(1.0f0)
+    @test @inferred(quantile(LogBNormal(1.0f0, 0.0f0, 10.0f0), 0.5f0)) === exp10(1.0f0)
     @test isnan_type(Float32, @inferred(quantile(LogBNormal(1.0f0, 0.0f0), NaN32)))
     @test @inferred(quantile(LogBNormal(1//1, 0//1), 1//2)) === exp(1)
+    @test @inferred(quantile(LogBNormal(1//1, 0//1, 10//1), 1//2)) === exp10(1)
 
     # cquantile
     @test @inferred(cquantile(LogBNormal(1.0, 0.0), 0.0f0)) === Inf
     @test @inferred(cquantile(LogBNormal(1.0, 0.0f0), 1.0)) === 0.0
     @test @inferred(cquantile(LogBNormal(1.0f0, 0.0), 0.5)) === exp(1)
+    @test @inferred(cquantile(LogBNormal(1.0f0, 0.0, 10.0), 0.5)) === exp10(1)
     @test isnan_type(Float64, @inferred(cquantile(LogBNormal(1.0f0, 0.0), NaN)))
     @test @inferred(cquantile(LogBNormal(1.0f0, 0.0f0), 0.0f0)) === Inf32
     @test @inferred(cquantile(LogBNormal(1.0f0, 0.0f0), 1.0f0)) === 0.0f0
     @test @inferred(cquantile(LogBNormal(1.0f0, 0.0f0), 0.5f0)) === exp(1.0f0)
+    @test @inferred(cquantile(LogBNormal(1.0f0, 0.0f0, 10.0f0), 0.5f0)) === exp10(1.0f0)
     @test isnan_type(Float32, @inferred(cquantile(LogBNormal(1.0f0, 0.0f0), NaN32)))
     @test @inferred(cquantile(LogBNormal(1//1, 0//1), 1//2)) === exp(1)
+    @test @inferred(cquantile(LogBNormal(1//1, 0//1, 10//1), 1//2)) === exp10(1)
 
     # gradlogpdf
     @test @inferred(gradlogpdf(LogBNormal(0.0, 1.0), 1.0)) === -1.0
