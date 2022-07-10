@@ -44,6 +44,7 @@ The `fit_mle` method has been implemented for the following distributions:
 - [`DiscreteUniform`](@ref)
 - [`Exponential`](@ref)
 - [`LogNormal`](@ref)
+- [`LogBNormal`](@ref)
 - [`Normal`](@ref)
 - [`Gamma`](@ref)
 - [`Geometric`](@ref)
@@ -72,6 +73,9 @@ fit_mle(Categorical, k, x, w)
 
 fit_mle(Categorical, x)        # equivalent to fit_mle(Categorical, max(x), x)
 fit_mle(Categorical, x, w)
+
+fit_mle(LogBNormal, x, B)      # B is the desired base for the lognormal distribution
+fit_mle(LogBNormal, x, w, B)
 ```
 
 ## Sufficient Statistics

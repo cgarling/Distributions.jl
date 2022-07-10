@@ -319,10 +319,10 @@ plotdensity((0, 5), LogNormal, (0, 1)) # hide
 ```
 
 ```@docs
-Log10Normal
+LogBNormal
 ```
 ```@example plotdensity
-plotdensity((0, 20), Log10Normal, (1, 0.2)) # hide
+plotdensity((0, 20), LogBNormal, (1, 0.2, 10.0)) # hide
 ```
 
 ```@docs
