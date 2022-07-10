@@ -46,6 +46,8 @@ LogBNormal(μ::Integer)= LogBNormal(float(μ), 1.0, float(ℯ); check_args=false
 convert(::Type{LogBNormal{T}}, μ::S, σ::S, B::S) where {T <: Real, S <: Real} = LogBNormal(T(μ), T(σ), T(B))
 Base.convert(::Type{LogBNormal{T}}, d::LogBNormal) where {T<:Real} = LogBNormal{T}(T(d.μ), T(d.σ), T(d.B))
 Base.convert(::Type{LogBNormal{T}}, d::LogBNormal{T}) where {T<:Real} = d
+# Change of base rule
+Base.convert(d::LogBNormal{T}, B::Real) where {T<:Real} = LogBNormal{T}(T(d.μ/log(B)*log(d.B)), T(d.σ/log(B)*log(d.B)), T(B))
 
 #### Parameters
 

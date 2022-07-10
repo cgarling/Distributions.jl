@@ -10,6 +10,25 @@ isnan_type(::Type{T}, v) where {T} = isnan(v) && v isa T
     d = LogBNormal(0, 1, 10)
     @test convert(LogBNormal{Float64}, d) === d
     @test convert(LogBNormal{Float32}, d) isa LogBNormal{Float32}
+    # test change of base
+    let d = LogBNormal(1.0,0.2,3.0), c = convert(d,10.0)
+        @test mean(d) ≈ mean(c) rtol = 1e-12
+        @test median(d) ≈ median(c) rtol = 1e-12
+        @test mode(d) ≈ mode(c) rtol = 1e-12
+        @test var(d) ≈ var(c) rtol = 1e-12
+        @test skewness(d) ≈ skewness(c) rtol = 1e-12
+        @test kurtosis(d) ≈ kurtosis(c) rtol = 1e-12
+        @test pdf(d,1.0) ≈ pdf(c,1.0) rtol = 1e-12
+        @test logpdf(d,1.0) ≈ logpdf(c,1.0) rtol = 1e-12
+        @test cdf(d,1.0) ≈ cdf(c,1.0) rtol = 1e-12
+        @test ccdf(d,1.0) ≈ ccdf(c,1.0) rtol = 1e-12
+        @test logccdf(d,1.0) ≈ logccdf(c,1.0) rtol = 1e-12
+        @test quantile(d,1.0) ≈ quantile(c,1.0) rtol = 1e-12
+        @test cquantile(d,1.0) ≈ cquantile(c,1.0) rtol = 1e-12
+        @test invlogcdf(d,logcdf(d,1.0)) ≈ invlogcdf(c,logcdf(d,1.0)) rtol = 1e-12
+        @test invlogccdf(d,logccdf(d,1.0)) ≈ invlogccdf(c,logccdf(d,1.0)) rtol = 1e-12
+        @test gradlogpdf(d,1.0) ≈ gradlogpdf(c,1.0) rtol = 1e-12
+    end
 
     @test logpdf(LogBNormal(0, 0, ℯ), 1) === Inf
     @test logpdf(LogBNormal(0, 0, 10), 1) === Inf
