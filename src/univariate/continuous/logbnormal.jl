@@ -2,7 +2,7 @@
     LogBNormal(μ,σ,B)
 
 The *LogB normal distribution* is the distribution of the base `B` exponential of a [`Normal`](@ref) variate: if ``X \\sim \\operatorname{Normal}(\\mu, \\sigma)`` then
-``x^B \\sim \\operatorname{LogBNormal}(\\mu,\\sigma,B)``. The probability density function is
+``B^x \\sim \\operatorname{LogBNormal}(\\mu,\\sigma,B)``. The probability density function is
 ```math
 f(x; \\mu, \\sigma) = \\frac{1}{x \\log(B) \\sqrt{2 \\pi \\sigma^2}}
 \\exp \\left( - \\frac{(\\log(B,x) - \\mu)^2}{2 \\sigma^2} \\right),
@@ -33,9 +33,12 @@ function LogBNormal(μ::T, σ::T, B::T; check_args::Bool=true) where {T <: Real}
     return LogBNormal{T}(μ, σ, B)
 end
 
-LogBNormal(μ::Real, σ::Real, B::Real; check_args::Bool=true) = LogBNormal(promote(μ, σ, B)...; check_args=check_args)
+LogBNormal(μ::Real, σ::Real, B::Real=ℯ; check_args::Bool=true) = LogBNormal(promote(μ, σ, B)...; check_args=check_args)
+LogBNormal(μ::Real=0.0) = LogBNormal(promote(μ, one(μ), ℯ)...; check_args=false)
+
 LogBNormal(μ::Integer, σ::Integer, B::Integer; check_args::Bool=true) = LogBNormal(float(μ), float(σ), float(B); check_args=check_args)
-LogBNormal(μ::Real=0.0,σ::Real=one(μ)) = LogBNormal(μ, σ, one(μ)*ℯ; check_args=false)
+LogBNormal(μ::Integer, σ::Integer; check_args::Bool=true) = LogBNormal(float(μ), float(σ), float(ℯ); check_args=check_args)
+LogBNormal(μ::Integer)= LogBNormal(float(μ), 1.0, float(ℯ); check_args=false)
 
 @distr_support LogBNormal 0.0 Inf
 
@@ -136,13 +139,13 @@ end
 
 function logcdf(d::LogBNormal, x::Real)
     (μ, σ, B) = params(d)
-    logbx = x ≤ zero(x) ? log(b,zero(x)) : log(b,x)
+    logbx = x ≤ zero(x) ? log(B,zero(x)) : log(B,x)
     return logcdf(Normal(μ, σ), logbx)
 end
 
 function logccdf(d::LogBNormal, x::Real)
     (μ, σ, B) = params(d)
-    logbx = x ≤ zero(x) ? log(b,zero(x)) : log(b,x)
+    logbx = x ≤ zero(x) ? log(B,zero(x)) : log(B,x)
     return logccdf(Normal(μ, σ), logbx)
 end
 
